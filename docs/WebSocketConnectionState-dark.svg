@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="-apple-system, 'SF Pro Display', 'PingFang TC', 'Helvetica Neue', sans-serif">
+  <defs>
+    <marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9a9a9e"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0a84ff"/>
+    </marker>
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff9f0a"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff453a"/>
+    </marker>
+    <marker id="arrowBlueDim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0a84ff" fill-opacity="0.55"/>
+    </marker>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#000"/>
+
+  <!-- 圖例（左上） -->
+  <g font-size="22" fill="#7a7a7e">
+    <text x="80" y="88"><tspan fill="#0a84ff">藍實線：呼叫 connect()</tspan>（在 connecting/waitingForNetwork/connected 三種狀態下呼叫時，會冪等忽略）</text>
+    <text x="80" y="124"><tspan fill="#0a84ff">藍虛線：呼叫 disconnect()</tspan></text>
+    <text x="80" y="160"><tspan fill="#ff9f0a">橘線：連線中斷 → 重連</tspan></text>
+    <text x="80" y="196"><tspan fill="#ff453a">紅線：連線中斷 → 不重連</tspan></text>
+    <text x="80" y="232">灰線：其餘正常流程</text>
+  </g>
+
+  <!-- 起點 -->
+  <circle cx="75" cy="460" r="9" fill="#fff"/>
+  <path d="M 89 460 L 131 460" stroke="#9a9a9e" stroke-width="3" fill="none" marker-end="url(#arrowGray)"/>
+
+  <!-- 灰：自動流轉 -->
+  <g stroke="#9a9a9e" stroke-width="3" fill="none" marker-end="url(#arrowGray)">
+    <path d="M 745 460 L 995 460"/>                                <!-- connecting → connected：ready -->
+    <path d="M 625 537 C 580 620, 580 650, 625 733"/>              <!-- connecting → waitingForNetwork -->
+    <path d="M 695 733 C 740 650, 740 620, 695 537"/>              <!-- waitingForNetwork → connecting -->
+    <path d="M 1030 748 C 940 640, 830 575, 732 517"/>             <!-- waitingToReconnect → connecting：退避時間到 -->
+  </g>
+
+  <!-- 藍：呼叫 connect() -->
+  <g stroke="#0a84ff" stroke-width="3" fill="none" marker-end="url(#arrowBlue)">
+    <path d="M 315 460 L 565 460"/>                                <!-- idle → connecting -->
+    <path d="M 1490 405 C 1290 330, 940 330, 740 418"/>            <!-- disconnected → connecting -->
+    <path d="M 1071 727 C 1000 570, 890 500, 740 487"/>            <!-- waitingToReconnect → connecting：立刻重連 -->
+  </g>
+
+  <!-- 橘：連線中斷 → 重連 -->
+  <g stroke="#ff9f0a" stroke-width="3" fill="none" marker-end="url(#arrowAmber)">
+    <path d="M 716 524 C 790 690, 890 760, 1013 771"/>             <!-- connecting → waitingToReconnect -->
+    <path d="M 1090 545 L 1090 715"/>                              <!-- connected → waitingToReconnect -->
+    <path d="M 745 810 L 995 810"/>                                <!-- waitingForNetwork → waitingToReconnect -->
+  </g>
+
+  <!-- 紅：連線中斷 → 不重連 -->
+  <g stroke="#ff453a" stroke-width="3" fill="none" marker-end="url(#arrowRed)">
+    <path d="M 1175 460 L 1465 460"/>                              <!-- connected → disconnected -->
+    <path d="M 700 382 C 920 240, 1300 240, 1510 383"/>            <!-- connecting → disconnected -->
+  </g>
+
+  <!-- disconnect()：任一狀態回 idle（藍虛線，跟 connect() 同屬使用者動作） -->
+  <g stroke="#0a84ff" stroke-opacity="0.55" stroke-width="2.5" fill="none" stroke-dasharray="7 7" marker-end="url(#arrowBlueDim)">
+    <path d="M 600 528 C 500 585, 390 578, 297 521"/>              <!-- connecting → idle -->
+    <path d="M 1050 535 C 820 730, 450 710, 272 535"/>             <!-- connected → idle -->
+    <path d="M 585 850 C 430 890, 290 660, 234 548"/>              <!-- waitingForNetwork → idle -->
+    <path d="M 1043 882 C 700 1020, 350 820, 222 545"/>            <!-- waitingToReconnect → idle -->
+    <path d="M 1532 542 C 1250 1080, 520 1080, 212 545"/>          <!-- disconnected → idle -->
+  </g>
+
+  <!-- 轉換標籤：壓在自己的線上，黑邊鏤空，顏色跟線 -->
+  <g font-size="20" text-anchor="middle" stroke="#000" stroke-width="10" stroke-linejoin="round" paint-order="stroke">
+    <text x="870" y="467" fill="#9a9a9e">連線成功</text>
+    <text x="591" y="642" fill="#9a9a9e"><tspan x="591" dy="-12">連不上</tspan><tspan x="591" dy="24">等網路恢復</tspan></text>
+    <text x="729" y="642" fill="#9a9a9e">恢復嘗試</text>
+    <text x="884" y="620" fill="#9a9a9e">退避時間到</text>
+  </g>
+
+  <!-- 狀態節點：空心=無連線意圖、灰=過渡、綠=活、紅=死 -->
+  <g text-anchor="middle">
+    <circle cx="230" cy="460" r="85" fill="#000" stroke="#98989d" stroke-width="3"/>
+    <text x="230" y="468" fill="#f2f2f2" font-size="22" font-weight="500">idle</text>
+
+    <circle cx="660" cy="460" r="85" fill="#48484a"/>
+    <text x="660" y="468" fill="#f2f2f2" font-size="22" font-weight="500">connecting</text>
+
+    <circle cx="1090" cy="460" r="85" fill="#30d158"/>
+    <text x="1090" y="468" fill="#fff" font-size="22" font-weight="500">connected</text>
+
+    <circle cx="1560" cy="460" r="85" fill="#ff453a"/>
+    <text x="1560" y="468" fill="#fff" font-size="22" font-weight="500">disconnected</text>
+
+    <circle cx="660" cy="810" r="85" fill="#48484a"/>
+    <text x="660" y="805" fill="#f2f2f2" font-size="22" font-weight="500">waiting for<tspan x="660" dy="26">network</tspan></text>
+
+    <circle cx="1090" cy="810" r="85" fill="#48484a"/>
+    <text x="1090" y="805" fill="#f2f2f2" font-size="22" font-weight="500">waiting to<tspan x="1090" dy="26">reconnect</tspan></text>
+  </g>
+
+  <!-- 標題（右下） -->
+  <text x="1840" y="1035" text-anchor="end" fill="#d2d2d7" font-size="32" font-weight="500">WebSocketConnectionState 狀態機</text>
+</svg>
